@@ -6,8 +6,9 @@
   html,
   body {
     @apply h-full overflow-hidden antialiased;
-    background-color: #030712;
-    color: #F1F5F9;
+    background-color: #040A0F;
+    color: #E2EDF5;
+    font-family: "Inter", system-ui, sans-serif;
   }
 
   * {
@@ -15,30 +16,80 @@
   }
 }
 
-/* Glassmorphism - iOS Liquid Glass Upgrade */
+/* ── Cinematic Glassmorphism ─────────────────────────────────────── */
 .glass {
   @apply backdrop-blur-2xl shadow-2xl transition-all duration-300;
-  background-color: rgba(11, 17, 23, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(7, 14, 21, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.08);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
   backdrop-filter: blur(24px) saturate(190%);
 }
 
-/* Custom glow element */
+/* ── Cyber-teal glow utilities ───────────────────────────────────── */
 .liquid-glow {
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.25), inset 0 0 12px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.2), inset 0 0 12px rgba(255, 255, 255, 0.03);
 }
 
-/* Cyan glow on active */
 .glow-active {
   @apply border;
-  border-color: #38BDF8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  border-color: #00D4FF;
+  box-shadow: 0 0 14px rgba(0, 212, 255, 0.5);
 }
 
-/* Scrollbar */
+.glow-amber {
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+}
+
+.glow-risk {
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.45);
+}
+
+/* ── Cinematic Header gradient ───────────────────────────────────── */
+.header-gradient {
+  background: linear-gradient(
+    90deg,
+    rgba(4, 10, 15, 0.97) 0%,
+    rgba(6, 12, 18, 0.92) 50%,
+    rgba(4, 10, 15, 0.97) 100%
+  );
+  border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── Intelligence slide-over panel ──────────────────────────────── */
+.intelligence-panel {
+  background: linear-gradient(
+    160deg,
+    rgba(6, 12, 18, 0.98) 0%,
+    rgba(4, 10, 15, 0.99) 100%
+  );
+  border-left: 1px solid rgba(0, 212, 255, 0.15);
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6), -4px 0 20px rgba(0, 212, 255, 0.05);
+}
+
+/* ── Scan-line overlay for cinematic feel ───────────────────────── */
+.scan-overlay {
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 212, 255, 0.015) 2px,
+    rgba(0, 212, 255, 0.015) 4px
+  );
+}
+
+/* ── Metadata modal ──────────────────────────────────────────────── */
+.metadata-modal {
+  background: linear-gradient(135deg, rgba(6, 12, 18, 0.98) 0%, rgba(4, 10, 15, 0.99) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 212, 255, 0.08);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -46,39 +97,62 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1F2937;
+  background: rgba(0, 212, 255, 0.2);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #38BDF8;
+  background: rgba(0, 212, 255, 0.5);
 }
 
-/* Animations */
+/* ── Animations ──────────────────────────────────────────────────── */
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
-  }
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 212, 255, 0.3); }
+  50%       { box-shadow: 0 0 22px rgba(0, 212, 255, 0.7); }
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse-glow 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes modal-pop {
+  0%   { opacity: 0; transform: scale(0.94) translateY(-10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-modal-pop {
+  animation: modal-pop 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.animate-blink {
+  animation: blink-dot 1.4s ease-in-out infinite;
+}
+
+/* ── Status pill colors ──────────────────────────────────────────── */
+.status-cleared   { color: #00D4FF; border-color: rgba(0, 212, 255, 0.3); }
+.status-transit   { color: #7C6EFA; border-color: rgba(124, 110, 250, 0.3); }
+.status-hold      { color: #F59E0B; border-color: rgba(245, 158, 11, 0.3); }
+.status-flagged   { color: #F43F5E; border-color: rgba(244, 63, 94, 0.3); }

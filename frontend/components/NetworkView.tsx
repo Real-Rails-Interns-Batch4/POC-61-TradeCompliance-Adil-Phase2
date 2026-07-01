@@ -9,16 +9,17 @@ interface NetworkViewProps {
   statusFilter: string;
   ports: PortLocation[];
   shipments: Shipment[];
+  onNodeClick?: (nodeId: string) => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  CLEARED: "#38BDF8",
-  IN_TRANSIT: "#818CF8",
-  CUSTOMS_HOLD: "#FBBF24",
-  OFAC_FLAGGED: "#EF4444",
+  CLEARED: "#00D4FF",
+  IN_TRANSIT: "#7C6EFA",
+  CUSTOMS_HOLD: "#F59E0B",
+  OFAC_FLAGGED: "#F43F5E",
 };
 
-export default function NetworkView({ statusFilter, ports, shipments }: NetworkViewProps) {
+export default function NetworkView({ statusFilter, ports, shipments, onNodeClick }: NetworkViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
 
@@ -145,10 +146,10 @@ export default function NetworkView({ statusFilter, ports, shipments }: NetworkV
         shape: "box",
         font: { face: "monospace", size: 10, color: "#F1F5F9", multi: true },
         color: {
-          background: "#0B1117",
-          border: "#1F2937",
-          highlight: { background: "#111827", border: "#38BDF8" },
-          hover: { background: "#111827", border: "#38BDF8" },
+          background: "#070E15",
+          border: "#0F2030",
+          highlight: { background: "#060C12", border: "#00D4FF" },
+          hover: { background: "#060C12", border: "#00D4FF" },
         },
         borderWidth: 1,
         borderWidthSelected: 2,
@@ -161,8 +162,8 @@ export default function NetworkView({ statusFilter, ports, shipments }: NetworkV
         smooth: { enabled: true, type: "cubicBezier", roundness: 0.5 },
       },
       groups: {
-        port: { color: { background: "#0B1117", border: "#1F2937" } },
-        checkpoint: { color: { background: "#111827", border: "#38BDF8" }, borderWidth: 1, shapeProperties: { borderDashes: [4, 4] } },
+        port: { color: { background: "#070E15", border: "#0F2030" } },
+        checkpoint: { color: { background: "#060C12", border: "#00D4FF" }, borderWidth: 1, shapeProperties: { borderDashes: [4, 4] } },
       },
       layout: {
         hierarchical: {
@@ -185,8 +186,15 @@ export default function NetworkView({ statusFilter, ports, shipments }: NetworkV
       networkRef.current = new Network(containerRef.current, { nodes, edges }, options);
     }
 
+    // Wire click event for slide-over panel
+    networkRef.current?.on("click", (params) => {
+      if (params.nodes.length > 0) {
+        onNodeClick?.(String(params.nodes[0]));
+      }
+    });
+
     return () => {
-      // Don't destroy on every re-render, only on full unmount. 
+      // Don't destroy on every re-render, only on full unmount.
     };
   }, [statusFilter, ports, shipments, isEmpty]);
 
@@ -201,25 +209,25 @@ export default function NetworkView({ statusFilter, ports, shipments }: NetworkV
   return (
     <div className="w-full h-full relative">
       {isEmpty ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#030712]">
-          <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-8 py-6 text-center max-w-sm">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#1F2937] flex items-center justify-center">
-              <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-[#040A0F] scan-overlay">
+          <div className="bg-[#070E15] border border-[#0F2030] rounded-2xl px-8 py-6 text-center max-w-sm shadow-2xl">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#0F2030] flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#3D5A70]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
               </svg>
             </div>
             <p className="text-white font-mono font-bold text-sm mb-1">NO SHIPMENTS FOUND</p>
-            <p className="text-gray-400 font-mono text-[10px] leading-relaxed">
-              No shipments match the <span className="text-[#FBBF24]">{statusFilter.replace("_", " ")}</span> filter.
-              The strict 70:30 ratio allocates traffic only to CLEARED and CUSTOMS HOLD statuses.
+            <p className="text-[#7A9AB5] font-mono text-[10px] leading-relaxed">
+              No shipments match the{" "}
+              <span className="text-[#F59E0B]">{statusFilter.replace("_", " ")}</span> filter.
             </p>
           </div>
         </div>
       ) : (
-        <div ref={containerRef} className="w-full h-full bg-[#030712]" />
+        <div ref={containerRef} className="w-full h-full bg-[#040A0F] scan-overlay" />
       )}
-      <div className="absolute bottom-3 left-3 bg-[#0B1117]/80 backdrop-blur-md border border-[#1F2937] px-3 py-1.5 rounded-md">
-        <span className="text-[9px] font-mono text-gray-400 uppercase tracking-wider">
+      <div className="absolute bottom-3 left-3 bg-[#070E15]/80 backdrop-blur-md border border-[#0F2030] px-3 py-1.5 rounded-md">
+        <span className="text-[9px] font-mono text-[#3D5A70] uppercase tracking-wider">
           vis-network · {isEmpty ? "0 nodes" : `physics simulation (${ports.length > 20 ? 20 : ports.length} nodes)`}
         </span>
       </div>

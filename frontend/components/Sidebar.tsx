@@ -52,26 +52,26 @@ export function Sidebar({
 
   return (
     <TooltipProvider>
-      <aside className="w-full h-full bg-[#0B1117] p-6 overflow-y-auto font-mono flex flex-col justify-between text-xs border-l border-[#1F2937] z-30 shadow-2xl">
+      <aside className="w-full h-full bg-transparent p-4 overflow-y-auto font-mono flex flex-col justify-between text-xs z-30">
         <div>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#38BDF8]" />
+              <ShieldCheck className="w-4 h-4 text-[#00D4FF]" />
               <h2 className="text-white font-bold tracking-wider uppercase text-sm">
-                GOVERNANCE RAIL
+                COMPLIANCE RAIL
               </h2>
             </div>
           </div>
 
           {/* CONTROLS */}
-          <div className="bg-[#111827] border border-[#1F2937] p-4 rounded-xl mb-6">
-            <label className="text-gray-400 block mb-2 uppercase tracking-tight text-[10px]">
+          <div className="bg-[#060C12] border border-[#0F2030] p-4 rounded-xl mb-5">
+            <label className="text-[#7A9AB5] block mb-2 uppercase tracking-tight text-[10px]">
               Filter Network State:
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-[#030712] border border-[#1F2937] text-white p-2 rounded-md outline-none focus:border-[#38BDF8] transition-colors cursor-pointer"
+              className="w-full bg-[#040A0F] border border-[#0F2030] text-white p-2 rounded-md outline-none focus:border-[#00D4FF] transition-colors cursor-pointer"
             >
               <option value="ALL">ALL TRAFFIC</option>
               <option value="IN_TRANSIT">IN TRANSIT</option>
@@ -103,7 +103,7 @@ export function Sidebar({
             {/* ── Metrics Tab ── */}
             <TabsContent value="metrics">
               {/* D3 Risk Chart */}
-              <div className="bg-[#111827] border border-[#1F2937] p-4 rounded-xl mb-4">
+              <div className="bg-[#060C12] border border-[#0F2030] p-4 rounded-xl mb-4">
                 <RiskChart metrics={metrics} shipments={shipments} />
               </div>
 
@@ -111,8 +111,8 @@ export function Sidebar({
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="bg-[#111827] border border-[#1F2937] p-3 rounded-xl cursor-help">
-                      <p className="text-gray-400 text-[10px] uppercase">Active Traces</p>
+                    <div className="bg-[#060C12] border border-[#0F2030] p-3 rounded-xl cursor-help">
+                      <p className="text-[#7A9AB5] text-[10px] uppercase">Active Traces</p>
                       <p className="text-lg font-bold text-white mt-1">
                         {metrics ? metrics.total_shipments.toLocaleString() : "..."}
                       </p>
@@ -124,8 +124,8 @@ export function Sidebar({
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="bg-[#111827] border border-[#1F2937] p-3 rounded-xl cursor-help">
-                      <p className="text-gray-400 text-[10px] uppercase">Value At Risk</p>
+                    <div className="bg-[#060C12] border border-[#0F2030] p-3 rounded-xl cursor-help">
+                      <p className="text-[#7A9AB5] text-[10px] uppercase">Value At Risk</p>
                       <p className="text-lg font-bold text-[#F43F5E] mt-1">
                         {metrics ? formatVAR(metrics.value_at_risk) : "..."}
                       </p>
@@ -152,15 +152,15 @@ export function Sidebar({
                       <button
                         key={s!.sku_id}
                         onClick={() => setSelectedSku(s!.sku_id)}
-                        className={`w-full text-left bg-[#1F2937]/40 border p-3 rounded-lg flex flex-col gap-1 transition-colors ${
+                        className={`w-full text-left bg-[#060C12]/40 border p-3 rounded-lg flex flex-col gap-1 transition-colors ${
                           selectedSku === s!.sku_id
-                            ? s!.status === "CUSTOMS_HOLD" ? "border-[#FBBF24]/50" : "border-[#38BDF8]/50"
-                            : "border-[#1F2937] hover:border-[#1F2937]/80"
+                            ? s!.status === "CUSTOMS_HOLD" ? "border-[#F59E0B]/50" : "border-[#00D4FF]/50"
+                            : "border-[#0F2030] hover:border-[#0F2030]/80"
                         }`}
                       >
                         <div className="flex justify-between text-white font-bold text-[11px]">
                           <span>{s!.sku_id}</span>
-                          <span className={s!.status === "CUSTOMS_HOLD" ? "text-[#FBBF24]" : "text-[#38BDF8]"}>
+                          <span className={s!.status === "CUSTOMS_HOLD" ? "text-[#F59E0B]" : "text-[#00D4FF]"}>
                             {s!.status.replace("_", " ")}
                           </span>
                         </div>
@@ -174,22 +174,22 @@ export function Sidebar({
               </div>
 
               {/* CONTEXT PANELS */}
-              <div className="space-y-4 border-t border-[#1F2937] pt-4">
+              <div className="space-y-4 border-t border-[#0F2030] pt-4">
                 <div>
-                  <h3 className="text-[#38BDF8] uppercase tracking-wider text-[10px] mb-1 font-bold flex items-center gap-1">
+                  <h3 className="text-[#00D4FF] uppercase tracking-wider text-[10px] mb-1 font-bold flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" /> Why This Matters
                   </h3>
-                  <p className="text-gray-400 leading-relaxed text-[11px]">
+                  <p className="text-[#7A9AB5] leading-relaxed text-[11px]">
                     Global customs evasion accounts for billions in lost revenue. Mapping
                     cross-border flows against active parameters enables instantaneous
                     node-level validation.
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-[#38BDF8] uppercase tracking-wider text-[10px] mb-1 font-bold flex items-center gap-1">
+                  <h3 className="text-[#00D4FF] uppercase tracking-wider text-[10px] mb-1 font-bold flex items-center gap-1">
                     <Globe className="w-3 h-3" /> Who Controls the Rail
                   </h3>
-                  <p className="text-gray-400 leading-relaxed text-[11px]">
+                  <p className="text-[#7A9AB5] leading-relaxed text-[11px]">
                     Governed by inter-governmental customs alliances and sovereign port
                     authorities processing international trade manifests.
                   </p>
@@ -209,10 +209,10 @@ export function Sidebar({
           </Tabs>
         </div>
 
-        <div className="pt-4 mt-4 border-t border-[#1F2937]">
+        <div className="pt-4 mt-4 border-t border-[#0F2030]">
           <button
             onClick={downloadSampleData}
-            className="w-full bg-[#111827] border border-[#38BDF8]/40 hover:border-[#38BDF8] text-[#38BDF8] py-2 rounded-xl flex items-center justify-center gap-2 transition-all font-bold tracking-wider text-[11px]"
+            className="w-full bg-[#060C12] border border-[#00D4FF]/30 hover:border-[#00D4FF] text-[#00D4FF] py-2 rounded-xl flex items-center justify-center gap-2 transition-all font-bold tracking-wider text-[11px] hover:shadow-[0_0_16px_rgba(0,212,255,0.2)]"
           >
             <Download className="w-3 h-3" /> DOWNLOAD SAMPLE DATA
           </button>

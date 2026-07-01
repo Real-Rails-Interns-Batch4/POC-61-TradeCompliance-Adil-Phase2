@@ -7,39 +7,40 @@ import { getLayoutedElements } from "@/utils/dagre-layout";
 import type { PortLocation, Shipment } from "@/types/api";
 
 const nodeStyle = {
-  background: "#0B1117",
-  color: "#fff",
-  border: "1px solid #1F2937",
-  borderRadius: "8px",
+  background: "#070E15",
+  color: "#E2EDF5",
+  border: "1px solid #0F2030",
+  borderRadius: "10px",
   padding: "12px",
   fontSize: "10px",
-  fontFamily: "monospace",
+  fontFamily: "JetBrains Mono, monospace",
 };
 
 const checkpointStyle = {
-  background: "#111827",
-  color: "#38BDF8",
-  border: "1px dashed #38BDF8",
-  borderRadius: "8px",
+  background: "#060C12",
+  color: "#00D4FF",
+  border: "1px dashed #00D4FF",
+  borderRadius: "10px",
   padding: "12px",
   fontSize: "10px",
-  fontFamily: "monospace",
+  fontFamily: "JetBrains Mono, monospace",
 };
 
 interface NetworkGraphProps {
   statusFilter: string;
   ports: PortLocation[];
   shipments: Shipment[];
+  onNodeClick?: (nodeId: string, nodeLabel: string) => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  CLEARED: "#38BDF8",
-  IN_TRANSIT: "#818CF8",
-  CUSTOMS_HOLD: "#FBBF24",
-  OFAC_FLAGGED: "#EF4444",
+  CLEARED: "#00D4FF",
+  IN_TRANSIT: "#7C6EFA",
+  CUSTOMS_HOLD: "#F59E0B",
+  OFAC_FLAGGED: "#F43F5E",
 };
 
-export default function NetworkGraph({ statusFilter, ports, shipments }: NetworkGraphProps) {
+export default function NetworkGraph({ statusFilter, ports, shipments, onNodeClick }: NetworkGraphProps) {
   const { layoutedNodes, filteredEdges, isEmpty } = useMemo(() => {
     if (!ports || ports.length === 0) return { layoutedNodes: [], filteredEdges: [], isEmpty: true };
 
@@ -118,7 +119,7 @@ export default function NetworkGraph({ statusFilter, ports, shipments }: Network
     const rawEdges: any[] = [];
     
     // Determine edge color based on filter
-    const edgeColor = statusFilter === "ALL" ? "#6B7280" : (STATUS_COLORS[statusFilter] || "#6B7280");
+    const edgeColor = statusFilter === "ALL" ? "#3D5A70" : (STATUS_COLORS[statusFilter] || "#3D5A70");
     const isDashed = statusFilter === "OFAC_FLAGGED";
 
     activeOrigins.forEach(name => {
@@ -143,7 +144,7 @@ export default function NetworkGraph({ statusFilter, ports, shipments }: Network
         style: { stroke: edgeColor, strokeWidth: 1.5, opacity: 0.6, strokeDasharray: isDashed ? "5 5" : "none" },
         label: isDashed || statusFilter === "CUSTOMS_HOLD" ? statusFilter : undefined,
         labelStyle: { fill: edgeColor, fontWeight: 700, fontFamily: "monospace", fontSize: 9 },
-        labelBgStyle: { fill: "#030712", fillOpacity: 0.8 },
+        labelBgStyle: { fill: "#040A0F", fillOpacity: 0.9 },
         markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
       });
     });
@@ -154,19 +155,19 @@ export default function NetworkGraph({ statusFilter, ports, shipments }: Network
   }, [statusFilter, ports, shipments]);
 
   return (
-    <div className="w-full h-full bg-[#030712] relative">
+    <div className="w-full h-full bg-[#040A0F] relative scan-overlay">
       {isEmpty ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-          <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-8 py-6 text-center max-w-sm">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#1F2937] flex items-center justify-center">
-              <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <div className="bg-[#070E15] border border-[#0F2030] rounded-2xl px-8 py-6 text-center max-w-sm shadow-2xl">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#0F2030] flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#3D5A70]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
               </svg>
             </div>
             <p className="text-white font-mono font-bold text-sm mb-1">NO SHIPMENTS FOUND</p>
-            <p className="text-gray-400 font-mono text-[10px] leading-relaxed">
-              No shipments match the <span className="text-[#FBBF24]">{statusFilter.replace("_", " ")}</span> filter.
-              The strict 70:30 ratio allocates traffic only to CLEARED and CUSTOMS HOLD statuses.
+            <p className="text-[#7A9AB5] font-mono text-[10px] leading-relaxed">
+              No shipments match the{" "}
+              <span className="text-[#F59E0B]">{statusFilter.replace("_", " ")}</span> filter.
             </p>
           </div>
         </div>
@@ -178,9 +179,12 @@ export default function NetworkGraph({ statusFilter, ports, shipments }: Network
           className="dark"
           attributionPosition="bottom-left"
           minZoom={0.2}
+          onNodeClick={(_e, node) => {
+            onNodeClick?.(node.id, String(node.data?.label ?? node.id));
+          }}
         >
-          <Background color="#1F2937" gap={24} />
-          <Controls style={{ backgroundColor: "#111827", border: "1px solid #1F2937", fill: "#fff" }} />
+          <Background color="#0F2030" gap={28} />
+          <Controls style={{ backgroundColor: "#070E15", border: "1px solid #0F2030", fill: "#E2EDF5" }} />
         </ReactFlow>
       )}
     </div>
