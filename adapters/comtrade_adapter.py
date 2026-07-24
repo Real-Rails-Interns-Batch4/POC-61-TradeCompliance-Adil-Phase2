@@ -109,12 +109,14 @@ def _init_synthetic_data():
             origins = [mock_node]
             destinations = [mock_node]
 
-        # Strict 70:30 ratio
+        # Strict 70:30 ratio (70% safe, 30% risk)
         for i in range(_TARGET_SHIPMENT_COUNT):
             shipment = _spawn_shipment(origins, destinations)
-            if i < 700:
+            if i < 600:
                 shipment["status"] = "CLEARED"
-            else:
+            elif i < 700:
+                shipment["status"] = "IN_TRANSIT"
+            elif i < 900:
                 shipment["status"] = "CUSTOMS_HOLD"
                 _GENERATED_ALERTS.append({
                     "alert_id": str(uuid.uuid4()),
@@ -123,6 +125,16 @@ def _init_synthetic_data():
                     "message": "Shipment held pending physical verification.",
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                     "source": "Customs Authority",
+                })
+            else:
+                shipment["status"] = "OFAC_FLAGGED"
+                _GENERATED_ALERTS.append({
+                    "alert_id": str(uuid.uuid4()),
+                    "severity": "CRITICAL",
+                    "sku_id": shipment["sku_id"],
+                    "message": "High-risk entity detected. OFAC compliance check required.",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "source": "Global Intelligence Network",
                 })
             _GENERATED_SHIPMENTS.append(shipment)
 

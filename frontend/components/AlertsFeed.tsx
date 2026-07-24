@@ -27,6 +27,9 @@ const SEVERITY_COLOR: Record<string, string> = {
   INFO: "text-[#38BDF8]",
 };
 
+// Cap how many alerts we render in the DOM — prevents janking when 300 are returned
+const ALERT_DISPLAY_LIMIT = 50;
+
 export default function AlertsFeed({ apiBase }: AlertsFeedProps) {
   const [alerts, setAlerts] = useState<ComplianceAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +69,8 @@ export default function AlertsFeed({ apiBase }: AlertsFeedProps) {
     );
   }
 
+  const visibleAlerts = alerts.slice(0, ALERT_DISPLAY_LIMIT);
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-3">
@@ -74,7 +79,12 @@ export default function AlertsFeed({ apiBase }: AlertsFeedProps) {
         </p>
         <Badge variant="critical">{alerts.filter(a => a.severity === "CRITICAL").length} critical</Badge>
       </div>
-      {alerts.map((alert) => {
+      {alerts.length > ALERT_DISPLAY_LIMIT && (
+        <p className="text-[9px] text-[#6A9BB8] font-mono mb-2">
+          Showing {ALERT_DISPLAY_LIMIT} of {alerts.length} alerts
+        </p>
+      )}
+      {visibleAlerts.map((alert) => {
         const Icon = SEVERITY_ICON[alert.severity] || Info;
         return (
           <div

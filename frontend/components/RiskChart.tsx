@@ -76,7 +76,7 @@ export default function RiskChart({ metrics, shipments }: RiskChartProps) {
       .attr("d", arc)
       .attr("fill", (d) => d.data.color)
       .attr("opacity", (d) => d.data.opacity)
-      .attr("stroke", "#030712")
+      .attr("stroke", "#020B12")
       .attr("stroke-width", 2)
       .transition()
       .duration(600)

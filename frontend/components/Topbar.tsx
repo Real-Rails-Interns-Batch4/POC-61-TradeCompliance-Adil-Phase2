@@ -23,14 +23,14 @@ export function Topbar({ stationCount, dataSource, isLoading }: TopbarProps) {
             }`}
           />
           <span className="text-white text-xs font-bold tracking-wider hidden sm:block">
-            / REAL RAILS INTELLIGENCE
+            INFOCREON · TRADE COMPLIANCE
           </span>
         </div>
 
         <div className="w-px h-5 bg-white/10 mx-2" />
 
         <span className="text-gray-400 text-xs font-mono tracking-wide hidden md:block">
-          SUPPLY CHAIN RAIL — EV CHARGING NETWORK
+          TRADE COMPLIANCE INTELLIGENCE · POC-61
         </span>
 
         <div className="ml-auto flex items-center gap-3">

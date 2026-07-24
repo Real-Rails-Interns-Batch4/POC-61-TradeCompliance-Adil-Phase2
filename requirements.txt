@@ -1,8 +1,6 @@
 fastapi
-uvicorn
+uvicorn[standard]
 httpx
 pydantic
 python-dotenv
 requests
-numpy
-pandas

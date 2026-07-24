@@ -77,10 +77,20 @@ def _validate_cache(cached: list[dict]) -> bool:
     return any(p.get("osm_node_id") == 999999999 for p in cached)
 
 
+import threading
+
+_PORT_LOCK = threading.Lock()
+
 def get_port_locations() -> list[dict]:
     """Return port locations from cache or live fetch."""
     global _PORTS_CACHE
-    if not _PORTS_CACHE:
+    if _PORTS_CACHE:
+        return _PORTS_CACHE
+
+    with _PORT_LOCK:
+        if _PORTS_CACHE:
+            return _PORTS_CACHE
+
         if os.path.exists(CACHE_FILE):
             with open(CACHE_FILE, "r") as f:
                 cached = json.load(f)

@@ -6,10 +6,12 @@ import "reactflow/dist/style.css";
 import { getLayoutedElements } from "@/utils/dagre-layout";
 import type { PortLocation, Shipment } from "@/types/api";
 
+// ── Maritime Visual DNA node styles ──────────────────────────────────────
+
 const nodeStyle = {
-  background: "#070E15",
-  color: "#E2EDF5",
-  border: "1px solid #0F2030",
+  background: "#050F18",
+  color: "#DCF0FF",
+  border: "1px solid #0C1E2E",
   borderRadius: "10px",
   padding: "12px",
   fontSize: "10px",
@@ -17,13 +19,14 @@ const nodeStyle = {
 };
 
 const checkpointStyle = {
-  background: "#060C12",
+  background: "#030E18",
   color: "#00D4FF",
   border: "1px dashed #00D4FF",
   borderRadius: "10px",
   padding: "12px",
   fontSize: "10px",
   fontFamily: "JetBrains Mono, monospace",
+  boxShadow: "0 0 20px rgba(0, 212, 255, 0.15)",
 };
 
 interface NetworkGraphProps {
@@ -34,60 +37,65 @@ interface NetworkGraphProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  CLEARED: "#00D4FF",
-  IN_TRANSIT: "#7C6EFA",
+  CLEARED:      "#00D4FF",
+  IN_TRANSIT:   "#7C6EFA",
   CUSTOMS_HOLD: "#F59E0B",
   OFAC_FLAGGED: "#F43F5E",
 };
 
-export default function NetworkGraph({ statusFilter, ports, shipments, onNodeClick }: NetworkGraphProps) {
+export default function NetworkGraph({
+  statusFilter,
+  ports,
+  shipments,
+  onNodeClick,
+}: NetworkGraphProps) {
   const { layoutedNodes, filteredEdges, isEmpty } = useMemo(() => {
-    if (!ports || ports.length === 0) return { layoutedNodes: [], filteredEdges: [], isEmpty: true };
+    if (!ports || ports.length === 0)
+      return { layoutedNodes: [], filteredEdges: [], isEmpty: true };
 
     const checkpoint = ports.find((p) => p.port_type === "checkpoint") || ports[0];
-    
-    // 1. Build map of ALL ports
-    const portMap = new Map(ports.map(p => [p.name, p]));
 
-    // 2. Filter active shipments
+    // Build map of ALL ports
+    const portMap = new Map(ports.map((p) => [p.name, p]));
+
+    // Filter active shipments
     const activeShipments = shipments.filter(
       (s) => statusFilter === "ALL" || s.status === statusFilter
     );
 
-    // If no shipments match this filter, return empty state
     if (activeShipments.length === 0) {
       return { layoutedNodes: [], filteredEdges: [], isEmpty: true };
     }
 
-    // 3. Count traffic per port
+    // Count traffic per port
     const originCounts = new Map<string, number>();
-    const destCounts = new Map<string, number>();
-    activeShipments.forEach(s => {
-       if (portMap.has(s.origin_port)) {
-         originCounts.set(s.origin_port, (originCounts.get(s.origin_port) || 0) + 1);
-       }
-       if (portMap.has(s.destination_port)) {
-         destCounts.set(s.destination_port, (destCounts.get(s.destination_port) || 0) + 1);
-       }
+    const destCounts   = new Map<string, number>();
+    activeShipments.forEach((s) => {
+      if (portMap.has(s.origin_port)) {
+        originCounts.set(s.origin_port, (originCounts.get(s.origin_port) || 0) + 1);
+      }
+      if (portMap.has(s.destination_port)) {
+        destCounts.set(s.destination_port, (destCounts.get(s.destination_port) || 0) + 1);
+      }
     });
 
-    // 4. Select top 10 busiest origins and top 10 busiest destinations
+    // Top 10 busiest origins and destinations
     const topOrigins = Array.from(originCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
-      .map(e => e[0]);
+      .map((e) => e[0]);
 
     const topDests = Array.from(destCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
-      .map(e => e[0]);
-      
-    const activeOrigins = new Set(topOrigins);
-    const activeDests = new Set(topDests);
+      .map((e) => e[0]);
 
-    // 3. Build Strict 3-Column Nodes (Origins -> Checkpoint -> Dests)
+    const activeOrigins = new Set(topOrigins);
+    const activeDests   = new Set(topDests);
+
+    // Build nodes
     const rawNodes: any[] = [];
-    
+
     rawNodes.push({
       id: "checkpoint",
       position: { x: 0, y: 0 },
@@ -95,7 +103,7 @@ export default function NetworkGraph({ statusFilter, ports, shipments, onNodeCli
       style: checkpointStyle,
     });
 
-    activeOrigins.forEach(name => {
+    activeOrigins.forEach((name) => {
       const p = portMap.get(name)!;
       rawNodes.push({
         id: `origin-${p.osm_node_id}`,
@@ -105,7 +113,7 @@ export default function NetworkGraph({ statusFilter, ports, shipments, onNodeCli
       });
     });
 
-    activeDests.forEach(name => {
+    activeDests.forEach((name) => {
       const p = portMap.get(name)!;
       rawNodes.push({
         id: `dest-${p.osm_node_id}`,
@@ -115,59 +123,84 @@ export default function NetworkGraph({ statusFilter, ports, shipments, onNodeCli
       });
     });
 
-    // 4. Build Edges (1 edge per active origin/dest based on current filter)
+    // Build edges
     const rawEdges: any[] = [];
-    
-    // Determine edge color based on filter
-    const edgeColor = statusFilter === "ALL" ? "#3D5A70" : (STATUS_COLORS[statusFilter] || "#3D5A70");
+    const edgeColor = statusFilter === "ALL"
+      ? "#1E3A4E"
+      : STATUS_COLORS[statusFilter] || "#1E3A4E";
     const isDashed = statusFilter === "OFAC_FLAGGED";
 
-    activeOrigins.forEach(name => {
+    activeOrigins.forEach((name) => {
       const p = portMap.get(name)!;
       rawEdges.push({
         id: `edge-orig-${p.osm_node_id}`,
         source: `origin-${p.osm_node_id}`,
         target: "checkpoint",
         animated: true,
-        style: { stroke: edgeColor, strokeWidth: 1.5, opacity: 0.6 },
+        style: { stroke: edgeColor, strokeWidth: 1.5, opacity: 0.65 },
         markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
       });
     });
 
-    activeDests.forEach(name => {
+    activeDests.forEach((name) => {
       const p = portMap.get(name)!;
       rawEdges.push({
         id: `edge-dest-${p.osm_node_id}`,
         source: "checkpoint",
         target: `dest-${p.osm_node_id}`,
         animated: true,
-        style: { stroke: edgeColor, strokeWidth: 1.5, opacity: 0.6, strokeDasharray: isDashed ? "5 5" : "none" },
-        label: isDashed || statusFilter === "CUSTOMS_HOLD" ? statusFilter : undefined,
-        labelStyle: { fill: edgeColor, fontWeight: 700, fontFamily: "monospace", fontSize: 9 },
-        labelBgStyle: { fill: "#040A0F", fillOpacity: 0.9 },
+        style: {
+          stroke: edgeColor,
+          strokeWidth: 1.5,
+          opacity: 0.65,
+          strokeDasharray: isDashed ? "5 5" : "none",
+        },
+        label:
+          isDashed || statusFilter === "CUSTOMS_HOLD" ? statusFilter : undefined,
+        labelStyle: {
+          fill: edgeColor,
+          fontWeight: 700,
+          fontFamily: "monospace",
+          fontSize: 9,
+        },
+        labelBgStyle: { fill: "#020B12", fillOpacity: 0.92 },
         markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
       });
     });
 
-    // Apply Dagre layout (Left-to-Right)
     const { nodes } = getLayoutedElements(rawNodes, rawEdges, "LR");
     return { layoutedNodes: nodes, filteredEdges: rawEdges, isEmpty: false };
   }, [statusFilter, ports, shipments]);
 
   return (
-    <div className="w-full h-full bg-[#040A0F] relative scan-overlay">
+    <div className="w-full h-full bg-[#020B12] relative">
       {isEmpty ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-          <div className="bg-[#070E15] border border-[#0F2030] rounded-2xl px-8 py-6 text-center max-w-sm shadow-2xl">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#0F2030] flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#3D5A70]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          <div className="bg-[#050F18] border border-[#0C1E2E] rounded-2xl px-8 py-6 text-center max-w-sm shadow-2xl">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#0C1E2E] flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-[#2E4A60]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                />
               </svg>
             </div>
-            <p className="text-white font-mono font-bold text-sm mb-1">NO SHIPMENTS FOUND</p>
-            <p className="text-[#7A9AB5] font-mono text-[10px] leading-relaxed">
+            <p className="text-[#DCF0FF] font-mono font-bold text-sm mb-1">
+              NO SHIPMENTS FOUND
+            </p>
+            <p className="text-[#6A9BB8] font-mono text-[10px] leading-relaxed">
               No shipments match the{" "}
-              <span className="text-[#F59E0B]">{statusFilter.replace("_", " ")}</span> filter.
+              <span className="text-[#F59E0B]">
+                {statusFilter.replace("_", " ")}
+              </span>{" "}
+              filter.
             </p>
           </div>
         </div>
@@ -183,8 +216,14 @@ export default function NetworkGraph({ statusFilter, ports, shipments, onNodeCli
             onNodeClick?.(node.id, String(node.data?.label ?? node.id));
           }}
         >
-          <Background color="#0F2030" gap={28} />
-          <Controls style={{ backgroundColor: "#070E15", border: "1px solid #0F2030", fill: "#E2EDF5" }} />
+          <Background color="#0C1E2E" gap={32} size={0.8} />
+          <Controls
+            style={{
+              backgroundColor: "#050F18",
+              border: "1px solid #0C1E2E",
+              fill: "#DCF0FF",
+            }}
+          />
         </ReactFlow>
       )}
     </div>
