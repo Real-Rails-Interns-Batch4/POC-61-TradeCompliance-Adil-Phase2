@@ -93,7 +93,7 @@ export default function MapStage({ statusFilter = "ALL" }: Props) {
     if (!map || !map.isStyleLoaded()) return; 
 
     try {
-      const API = process.env.NEXT_PUBLIC_API_BASE_URL !== undefined ? process.env.NEXT_PUBLIC_API_BASE_URL : "http://localhost:8000";
+      const API = process.env.NEXT_PUBLIC_API_BASE_URL || "";
       const res = await fetch(`${API}/api/shipments?status=${status}`);
       if (!res.ok) return;
 
