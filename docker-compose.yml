@@ -1,27 +1,27 @@
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        # Server-side: Next.js rewrite proxy target (Docker service name)
-        API_BASE_URL: "http://backend:8000"
-        # Client-side: browser fetches directly to localhost (since port 8000 is exposed)
-        NEXT_PUBLIC_API_BASE_URL: ""
-    container_name: cinematic-rail-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    restart: unless-stopped
-
-  backend:
+  cinematic-rail-app:
     build:
       context: .
-      dockerfile: backend/Dockerfile
-    container_name: cinematic-rail-backend
+      dockerfile: Dockerfile
+      args:
+        # Pass NEXT_PUBLIC_MAPBOX_TOKEN from .env into the build stage
+        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN:-}
+    image: trade-compliance-poc:latest
+    container_name: cinematic-rail-app
     ports:
-      - "8000:8000"
+      - "3000:3000"   # Next.js frontend
+      - "8000:8000"   # FastAPI backend (useful for local dev / API testing)
     env_file:
       - .env
+    environment:
+      - API_BASE_URL=http://localhost:8000
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
     restart: unless-stopped
+    # Resource limits — keep within Docker Desktop defaults (2 GB RAM)
+    deploy:
+      resources:
+        limits:
+          memory: 1500M
+        reservations:
+          memory: 256M

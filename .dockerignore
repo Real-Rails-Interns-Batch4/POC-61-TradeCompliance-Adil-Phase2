@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .dockerignore  –  Keep the build context lean and fast
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/.env*
+
+# Git
+.git/
+.gitignore
+
+# Mac
+.DS_Store
+
+# Docker itself
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Large data files not needed in image
+repomix-output.xml
+
+# Env secrets
+.env
