@@ -24,7 +24,7 @@ const NetworkView = dynamic(() => import("@/components/NetworkView"), { ssr: fal
 // ── Page Component ─────────────────────────────────────────────────────
 
 export default function Page() {
-  const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  const API = process.env.NEXT_PUBLIC_API_BASE_URL !== undefined ? process.env.NEXT_PUBLIC_API_BASE_URL : "http://localhost:8000";
 
   // ── State ─────────────────────────────────────────────────────────────
   const [backendMetrics, setBackendMetrics] = useState<MetricsResponse | null>(null);
